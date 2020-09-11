@@ -2,9 +2,9 @@
 	"name": "code-transform",
 	"displayName": "code-transform",
 	"description": "code transform",
-	"version": "0.0.1",
-	"publisher":"llej",
-	"repository":"git@github.com:2234839/code-transform.git",
+	"version": "0.0.3",
+	"publisher": "llej",
+	"repository": "git@github.com:2234839/code-transform.git",
 	"engines": {
 		"vscode": "^1.40.0"
 	},
@@ -12,6 +12,7 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onStartupFinished",
 		"onCommand:extension.transform",
 		"onCommand:extension.setFun"
 	],
@@ -26,7 +27,25 @@
 				"command": "extension.setFun",
 				"title": "setFun"
 			}
-		]
+		],
+		"configuration": {
+			"type": "object",
+			"title": "code-transform",
+			"properties": {
+				"表征转换.启用": {
+					"type": "boolean",
+					"default": false,
+					"description": "启用表征转换，这会消耗一些性能"
+				},
+				"表征转换.转换规则": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"description": "您看到的代码会经过这些转换规则呈现出不一样的效果，但不会实际变动您的代码"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
