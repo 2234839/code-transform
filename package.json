@@ -2,9 +2,9 @@
 	"name": "code-transform",
 	"displayName": "code-transform",
 	"description": "code transform",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"publisher": "llej",
-	"repository": "git@github.com:2234839/code-transform.git",
+	"repository": "2234839/code-transform",
 	"engines": {
 		"vscode": "^1.40.0"
 	},
