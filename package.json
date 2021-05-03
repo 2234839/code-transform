@@ -2,7 +2,7 @@
 	"name": "code-transform",
 	"displayName": "code-transform",
 	"description": "code transform",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"publisher": "llej",
 	"repository": "2234839/code-transform",
 	"engines": {
@@ -25,12 +25,16 @@
 		"onCommand:extension.setFun"
 	],
 	"main": "./out/extension.js",
-
 	"contributes": {
 		"commands": [
 			{
 				"command": "extension.setFun",
 				"title": "setFun",
+				"category": "code-transform"
+			},
+			{
+				"command": "extension.transform",
+				"title": "transform",
 				"category": "code-transform"
 			}
 		],
