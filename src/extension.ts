@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
-import { CompletionItemProvider, DecorationOptions, Position, TextDocument, window, workspace } from "vscode";
+import { window, workspace } from "vscode";
+import * as gogocode from "gogocode";
+
 const fun: {
   [name: string]: {
     [str: string]: (str: string) => string;
@@ -10,29 +12,35 @@ let list = [] as string[];
 export function activate(context: vscode.ExtensionContext) {
   list = workspace.getConfiguration("表征转换").get("转换规则") as string[];
   const 启用表征转换 = workspace.getConfiguration("表征转换").get("启用");
-  console.log("[启用表征转换]", 启用表征转换);
+  // console.log("[启用表征转换]", 启用表征转换);
   eval_code(context);
-  let disposable = vscode.commands.registerCommand("extension.transform", async () => {
-    const pickItem: string[] = [];
-    const fun_obj: {
-      [str: string]: (str: string) => string;
-    } = {};
-    for (const key in fun) {
-      const fun_child = fun[key];
-      for (const _key in fun_child) {
-        const element = fun_child[_key];
-        fun_obj[`${_key}-->${key}`] = element;
-        pickItem.push(`${_key}-->${key}`);
+  let disposable = vscode.commands.registerCommand(
+    "extension.transform",
+    async () => {
+      const pickItem: string[] = [];
+      const fun_obj: {
+        [str: string]: (str: string) => string;
+      } = {};
+      for (const key in fun) {
+        const fun_child = fun[key];
+        for (const _key in fun_child) {
+          const element = fun_child[_key];
+          fun_obj[`${_key}-->${key}`] = element;
+          pickItem.push(`${_key}-->${key}`);
+        }
       }
-    }
-    const res = await vscode.window.showQuickPick(pickItem);
-    if (res === undefined) {
-      return;
-    }
-    replace(fun_obj[res]);
-  });
+      const res = await vscode.window.showQuickPick(pickItem);
+      if (res === undefined) {
+        return;
+      }
+      replace(fun_obj[res]);
+    },
+  );
   let setFun = vscode.commands.registerCommand("extension.setFun", async () => {
-    const uris = await vscode.window.showOpenDialog({ filters: { js: ["js"] }, canSelectMany: true });
+    const uris = await vscode.window.showOpenDialog({
+      filters: { js: ["js"] },
+      canSelectMany: true,
+    });
     if (uris === undefined) {
       return;
     }
@@ -68,7 +76,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 type s = { r: vscode.Range; d: vscode.DecorationOptions };
 
-const documentDecor = new WeakMap<vscode.TextDocument, { d: vscode.TextEditorDecorationType; s: s[] }>();
+const documentDecor = new WeakMap<
+  vscode.TextDocument,
+  { d: vscode.TextEditorDecorationType; s: s[] }
+>();
 
 function render(textDocument: vscode.TextDocumentChangeEvent) {
   const d = textDocument.document;
@@ -102,7 +113,9 @@ function render(textDocument: vscode.TextDocumentChangeEvent) {
     (el) => activeEditor.document.lineAt(el.active).range,
   );
 
-  const targetList = dList.map((el) => el.d).filter((el) => !selections.find((s) => s.contains(el.range)));
+  const targetList = dList
+    .map((el) => el.d)
+    .filter((el) => !selections.find((s) => s.contains(el.range)));
   activeEditor.setDecorations(c!.d, targetList);
 
   function match(regEx: RegExp) {
@@ -158,7 +171,10 @@ async function eval_code(context: vscode.ExtensionContext) {
   fun_file.forEach((file) => {
     let funObj;
     try {
-      funObj = eval(file.content);
+      funObj = eval(file.content)({
+        /** ast 转换工具 */
+        gogocode,
+      });
     } catch (error) {
       return console.error("解析代码失败", error);
     }
@@ -189,14 +205,16 @@ function replace(getText: (str: string) => string) {
       let new_text;
       try {
         new_text = getText(text);
+        editBuilder.replace(range, new_text);
       } catch (error) {
         console.error("转换失败", error);
+        vscode.window.showInformationMessage("转换失败!" + error);
         return "";
       }
     });
   });
 
-  vscode.window.showInformationMessage("转变代码!");
+  // vscode.window.showInformationMessage("转变代码!");
 }
 
 function someRange(r1: vscode.Range, r2: vscode.Range) {

@@ -2,11 +2,19 @@
 	"name": "code-transform",
 	"displayName": "code-transform",
 	"description": "code transform",
-	"version": "0.0.3",
+	"version": "0.1.0",
 	"publisher": "llej",
 	"repository": "git@github.com:2234839/code-transform.git",
 	"engines": {
 		"vscode": "^1.40.0"
+	},
+	"scripts": {
+		"vscode:package": "vsce package --baseContentUrl https://raw.githubusercontent.com/2234839/code-transform/master/",
+		"vscode:prepublish": "yarn run compile",
+		"watch": "tsc -watch -p ./",
+		"compile": "tsc -p ./",
+		"pretest": "yarn run compile",
+		"test": "node ./out/test/runTest.js"
 	},
 	"categories": [
 		"Other"
@@ -17,15 +25,13 @@
 		"onCommand:extension.setFun"
 	],
 	"main": "./out/extension.js",
+
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.transform",
-				"title": "transform"
-			},
-			{
 				"command": "extension.setFun",
-				"title": "setFun"
+				"title": "setFun",
+				"category": "code-transform"
 			}
 		],
 		"configuration": {
@@ -42,17 +48,10 @@
 					"items": {
 						"type": "string"
 					},
-					"description": "您看到的代码会经过这些转换规则呈现出不一样的效果，但不会实际变动您的代码"
+					"description": "[未实现]您看到的代码会经过这些转换规则呈现出不一样的效果，但不会实际变动您的代码"
 				}
 			}
 		}
-	},
-	"scripts": {
-		"vscode:prepublish": "yarn run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile",
-		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
@@ -67,5 +66,9 @@
 		"vscode-test": "^1.2.2",
 		"webpack": "^4.41.2",
 		"webpack-cli": "^3.3.10"
+	},
+	"dependencies": {
+		"gogocode": "^0.2.18",
+		"vue": "3.0.11"
 	}
 }

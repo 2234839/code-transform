@@ -9,14 +9,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.deactivate = exports.activate = void 0;
 const vscode = require("vscode");
 const vscode_1 = require("vscode");
+const gogocode = require("gogocode");
 const fun = {};
 let list = [];
 function activate(context) {
     list = vscode_1.workspace.getConfiguration("表征转换").get("转换规则");
     const 启用表征转换 = vscode_1.workspace.getConfiguration("表征转换").get("启用");
-    console.log("[启用表征转换]", 启用表征转换);
+    // console.log("[启用表征转换]", 启用表征转换);
     eval_code(context);
     let disposable = vscode.commands.registerCommand("extension.transform", () => __awaiter(this, void 0, void 0, function* () {
         const pickItem = [];
@@ -36,7 +38,10 @@ function activate(context) {
         replace(fun_obj[res]);
     }));
     let setFun = vscode.commands.registerCommand("extension.setFun", () => __awaiter(this, void 0, void 0, function* () {
-        const uris = yield vscode.window.showOpenDialog({ filters: { js: ["js"] }, canSelectMany: true });
+        const uris = yield vscode.window.showOpenDialog({
+            filters: { js: ["js"] },
+            canSelectMany: true,
+        });
         if (uris === undefined) {
             return;
         }
@@ -94,7 +99,9 @@ function render(textDocument) {
     /** 生成新的了，所以清除掉 */
     const activeEditor = vscode.window.activeTextEditor;
     const selections = vscode.window.activeTextEditor.selections.map((el) => activeEditor.document.lineAt(el.active).range);
-    const targetList = dList.map((el) => el.d).filter((el) => !selections.find((s) => s.contains(el.range)));
+    const targetList = dList
+        .map((el) => el.d)
+        .filter((el) => !selections.find((s) => s.contains(el.range)));
     activeEditor.setDecorations(c.d, targetList);
     function match(regEx) {
         const text = d.getText();
@@ -144,7 +151,10 @@ function eval_code(context) {
         fun_file.forEach((file) => {
             let funObj;
             try {
-                funObj = eval(file.content);
+                funObj = eval(file.content)({
+                    /** ast 转换工具 */
+                    gogocode,
+                });
             }
             catch (error) {
                 return console.error("解析代码失败", error);
@@ -174,14 +184,16 @@ function replace(getText) {
             let new_text;
             try {
                 new_text = getText(text);
+                editBuilder.replace(range, new_text);
             }
             catch (error) {
                 console.error("转换失败", error);
+                vscode.window.showInformationMessage("转换失败!" + error);
                 return "";
             }
         });
     });
-    vscode.window.showInformationMessage("转变代码!");
+    // vscode.window.showInformationMessage("转变代码!");
 }
 function someRange(r1, r2) {
     return r1.isEqual(r2);
