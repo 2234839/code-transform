@@ -37,12 +37,14 @@
 ## [支持 gogocode 的转换](https://github.com/2234839/code-transform/issues/9)
 
 ```javascript
-({gogocode:$}) => ({
+({ gogocode: $ }) => {
+  return {
     test(code) {
         console.log($(code));
         return $(code).replace('a', 'c').generate();
     }
-});
+  }
+}
 ```
 
 ### transform

@@ -17,3 +17,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Changed
 
 - 注意!,原来的 js 文件需要的是直接返回对象，现在改成了需要是一个函数，这是为了支持 gogocode 以及将来可能的其他功能
+
+## [1.1.2] - 2024/3/13
+
+整洁代码，调整编译所需的工具链

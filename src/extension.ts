@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { window, workspace } from "vscode";
-import * as gogocode from "gogocode";
+import gogocode from "gogocode";
 
 const fun: {
   [name: string]: {
@@ -104,7 +104,7 @@ function render(textDocument: vscode.TextDocumentChangeEvent) {
   let dList = c.s;
   dList = [];
   list.forEach((s) => {
-    const r = eval(s);
+    const r = (0, eval)(s);
     match(r);
   });
   /** 生成新的了，所以清除掉 */
@@ -160,7 +160,7 @@ function debounce(fun: (...args: any[]) => void, delay: number) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
 
 async function eval_code(context: vscode.ExtensionContext) {
   const fun_file = (await context.globalState.get("fun", [])) as {
@@ -171,7 +171,7 @@ async function eval_code(context: vscode.ExtensionContext) {
   fun_file.forEach((file) => {
     let funObj;
     try {
-      funObj = eval(file.content)({
+      funObj = ((0, eval)(file.content))({
         /** ast 转换工具 */
         gogocode,
       });
@@ -215,8 +215,4 @@ function replace(getText: (str: string) => string) {
   });
 
   // vscode.window.showInformationMessage("转变代码!");
-}
-
-function someRange(r1: vscode.Range, r2: vscode.Range) {
-  return r1.isEqual(r2);
 }
