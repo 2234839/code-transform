@@ -2,7 +2,7 @@
 	"name": "code-transform",
 	"displayName": "code-transform",
 	"description": "code transform",
-	"version": "1.1.2",
+	"version": "1.1.3",
 	"publisher": "llej",
 	"repository": "2234839/code-transform",
 	"engines": {
@@ -54,6 +54,10 @@
 			}
 		}
 	},
+	"extensionKind":[
+		"ui",
+		"workspace"
+	],
 	"devDependencies": {
 		"@types/vscode": "^1.87.0",
 		"tsup": "^8.0.2",
