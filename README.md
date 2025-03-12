@@ -35,6 +35,13 @@
 ```
 ## 支持 vscode 对象
 
+```javascript
+({ vscode }) => {
+  // 你可以在这里使用 vscode 的 api
+  vscode
+}
+```
+
 ## [支持 gogocode 的转换](https://github.com/2234839/code-transform/issues/9)
 
 ```javascript
