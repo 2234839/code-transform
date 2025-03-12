@@ -34,7 +34,7 @@
 }
 ```
 ## 支持 vscode 对象
-221111111
+
 ## [支持 gogocode 的转换](https://github.com/2234839/code-transform/issues/9)
 
 ```javascript
