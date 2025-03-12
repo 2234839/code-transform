@@ -33,7 +33,7 @@
     }
 }
 ```
-## 支持 vscode 对象
+## 支持 vscode api
 
 ```javascript
 ({ vscode }) => {
