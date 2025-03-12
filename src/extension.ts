@@ -1,6 +1,7 @@
-import * as vscode from "vscode";
-import { window, workspace } from "vscode";
-import gogocode from "gogocode";
+import * as vscode from 'vscode';
+import { window, workspace } from 'vscode';
+import gogocode from 'gogocode';
+import type { GitExtension } from './git';
 
 const fun: {
   [name: string]: {
@@ -10,35 +11,32 @@ const fun: {
 
 let list = [] as string[];
 export function activate(context: vscode.ExtensionContext) {
-  list = workspace.getConfiguration("表征转换").get("转换规则") as string[];
-  const 启用表征转换 = workspace.getConfiguration("表征转换").get("启用");
+  list = workspace.getConfiguration('表征转换').get('转换规则') as string[];
+  const 启用表征转换 = workspace.getConfiguration('表征转换').get('启用');
   // console.log("[启用表征转换]", 启用表征转换);
   eval_code(context);
-  let disposable = vscode.commands.registerCommand(
-    "extension.transform",
-    async () => {
-      const pickItem: string[] = [];
-      const fun_obj: {
-        [str: string]: (str: string) => string;
-      } = {};
-      for (const key in fun) {
-        const fun_child = fun[key];
-        for (const _key in fun_child) {
-          const element = fun_child[_key];
-          fun_obj[`${_key}-->${key}`] = element;
-          pickItem.push(`${_key}-->${key}`);
-        }
+  let disposable = vscode.commands.registerCommand('extension.transform', async () => {
+    const pickItem: string[] = [];
+    const fun_obj: {
+      [str: string]: (str: string) => string;
+    } = {};
+    for (const key in fun) {
+      const fun_child = fun[key];
+      for (const _key in fun_child) {
+        const element = fun_child[_key];
+        fun_obj[`${_key}-->${key}`] = element;
+        pickItem.push(`${_key}-->${key}`);
       }
-      const res = await vscode.window.showQuickPick(pickItem);
-      if (res === undefined) {
-        return;
-      }
-      replace(fun_obj[res]);
-    },
-  );
-  let setFun = vscode.commands.registerCommand("extension.setFun", async () => {
+    }
+    const res = await vscode.window.showQuickPick(pickItem);
+    if (res === undefined) {
+      return;
+    }
+    replace(fun_obj[res]);
+  });
+  let setFun = vscode.commands.registerCommand('extension.setFun', async () => {
     const uris = await vscode.window.showOpenDialog({
-      filters: { js: ["js"] },
+      filters: { js: ['js'] },
       canSelectMany: true,
     });
     if (uris === undefined) {
@@ -50,11 +48,11 @@ export function activate(context: vscode.ExtensionContext) {
     }[] = [];
     for (let i = 0; i < uris.length; i++) {
       const uri = uris[i];
-      console.log("[uri]", uri);
+      console.log('[uri]', uri);
       const file = await vscode.workspace.fs.readFile(uri);
       let matcher = uri.path.match(/.*\/(.*?)\.js$/);
       if (matcher === null) {
-        return console.error("文件名可能不对");
+        return console.error('文件名可能不对');
       }
       fun_file.push({
         name: matcher[1],
@@ -62,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
       });
     }
 
-    await context.globalState.update("fun", fun_file);
+    await context.globalState.update('fun', fun_file);
     eval_code(context);
   });
   context.subscriptions.push(disposable);
@@ -88,14 +86,14 @@ function render(textDocument: vscode.TextDocumentChangeEvent) {
   if (documentDecor.get(d) === undefined) {
     documentDecor.set(d, {
       d: window.createTextEditorDecorationType({
-        color: "#ff9977",
+        color: '#ff9977',
         after: {
-          color: "#FF00FF",
-          border: "solid black 1px",
-          contentText: "",
+          color: '#FF00FF',
+          border: 'solid black 1px',
+          contentText: '',
         },
         /** 通过这种 hack 方式隐藏正文，使用户第一眼看到的是上面的after的内容 */
-        textDecoration: "none; display: none;",
+        textDecoration: 'none; display: none;',
       }),
       s: [],
     });
@@ -131,7 +129,7 @@ function render(textDocument: vscode.TextDocumentChangeEvent) {
           r: range,
           d: {
             range,
-            hoverMessage: "code-transform test hover",
+            hoverMessage: 'code-transform test hover',
             renderOptions: {
               after: {
                 contentText: `> 💝💫💨 ${d.getText(range)} <`,
@@ -140,7 +138,7 @@ function render(textDocument: vscode.TextDocumentChangeEvent) {
           },
         });
       } else {
-        console.log("空range");
+        console.log('空range');
       }
     }
   }
@@ -153,17 +151,17 @@ function debounce(fun: (...args: any[]) => void, delay: number) {
       clearTimeout(id);
     }
     id = setTimeout(function () {
-      console.log("更新");
+      console.log('更新');
       fun(...args);
     }, delay);
   };
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {}
 
 async function eval_code(context: vscode.ExtensionContext) {
-  const fun_file = (await context.globalState.get("fun", [])) as {
+  const fun_file = (await context.globalState.get('fun', [])) as {
     name: string;
     content: string;
   }[];
@@ -171,12 +169,14 @@ async function eval_code(context: vscode.ExtensionContext) {
   fun_file.forEach((file) => {
     let funObj;
     try {
-      funObj = ((0, eval)(file.content))({
+      funObj = (0, eval)(file.content)({
         /** ast 转换工具 */
         gogocode,
+        vscode,
+        getGitExtension,
       });
     } catch (error) {
-      return console.error("解析代码失败", error);
+      return console.error('解析代码失败', error);
     }
     let obj = { [file.name]: funObj };
     Object.assign(fun, obj);
@@ -196,7 +196,7 @@ function replace(getText: (str: string) => string) {
       let text = editor.document.getText(selection);
       /** 选中范围 */
       let range: vscode.Range = selection;
-      if (text === "") {
+      if (text === '') {
         /** 没有文本认为是选中了一行 */
         text = editor.document.lineAt(selection.active).text;
         range = editor.document.lineAt(selection.active).range;
@@ -205,14 +205,20 @@ function replace(getText: (str: string) => string) {
       let new_text;
       try {
         new_text = getText(text);
+
+        /** 返回的不是文本的话就纯当做执行脚本了 */
+        if (typeof new_text !== 'string') return;
         editBuilder.replace(range, new_text);
       } catch (error) {
-        console.error("转换失败", error);
-        vscode.window.showInformationMessage("转换失败!" + error);
-        return "";
+        console.error('转换失败', error);
+        vscode.window.showInformationMessage('转换失败!' + error);
+        return '';
       }
     });
   });
-
-  // vscode.window.showInformationMessage("转变代码!");
+}
+function getGitExtension() {
+  const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')!.exports;
+  const git = gitExtension.getAPI(1);
+  return git;
 }

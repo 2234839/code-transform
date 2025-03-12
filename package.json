@@ -2,16 +2,16 @@
 	"name": "code-transform",
 	"displayName": "code-transform",
 	"description": "code transform",
-	"version": "1.1.3",
+	"version": "1.1.5",
 	"publisher": "llej",
 	"repository": "2234839/code-transform",
 	"engines": {
-		"vscode": "^1.87.0"
+		"vscode": "^1.98.0"
 	},
 	"scripts": {
 		"vscode:package": "vsce package --no-dependencies --baseContentUrl https://raw.githubusercontent.com/2234839/code-transform/master/",
 		"vscode:prepublish": "pnpm build",
-		"vscode:publish": "vsce publish",
+		"vscode:publish": "vsce publish --no-dependencies --baseContentUrl https://raw.githubusercontent.com/2234839/code-transform/master/",
 		"watch": "tsup watch",
 		"build": "tsup"
 	},
@@ -59,8 +59,12 @@
 		"ui",
 		"workspace"
 	],
+	"extensionDependencies": [
+		"vscode.git"
+	],
 	"devDependencies": {
 		"@types/vscode": "^1.98.0",
+		"@vscode/vsce": "^3.2.2",
 		"tsup": "^8.4.0",
 		"typescript": "^5.8.2"
 	},
